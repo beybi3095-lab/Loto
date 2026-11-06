@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#f8f5ee">
+<title>AZELOTO</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+:root{
+  --bg:#f8f5ee;--bg2:#efe9db;--surface:#ffffff;--surface2:#faf7f0;
+  --border:#e8e0d0;--border2:#d5c9b0;
+  --text:#1f1a12;--muted:#8a7a5f;
+  --gold:#d4a44c;--gold2:#e8bd63;--gold3:#b8892f;
+  --green:#2a9d5c;--green-bg:#e0f5e9;
+  --red:#d63a3a;--red-bg:#fbe4e4;
+  --shadow:0 2px 10px rgba(31,26,18,.06);
+  --shadow2:0 10px 30px rgba(31,26,18,.12);
+}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+#app{max-width:540px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:rgba(248,245,238,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.brand{font-size:22px;font-weight:900;letter-spacing:3px;background:linear-gradient(135deg,var(--gold3),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.bal{padding:8px 16px;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border-radius:24px;font-size:14px;font-weight:800;box-shadow:0 4px 14px rgba(212,164,76,.35)}
+.screen{display:none;padding:18px;flex:1}
+.screen.on{display:block}
+.sec-title{font-size:11px;text-transform:uppercase;letter-spacing:2.5px;color:var(--muted);margin-bottom:16px;font-weight:800}
+.tables{display:grid;gap:12px}
+.table-row{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:18px 20px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:all .15s;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.table-row:active{transform:scale(.98);box-shadow:var(--shadow2)}
+.table-row::before{content:"";position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--gold),var(--gold3))}
+.tr-price{font-size:23px;font-weight:900;color:var(--text)}
+.tr-players{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:7px;margin-top:5px;font-weight:600}
+.tr-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px var(--green-bg);animation:pl 2s infinite}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.5}}
+.tr-status{font-size:10px;padding:6px 12px;border-radius:10px;background:var(--surface2);color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.7px;border:1px solid var(--border)}
+.tr-status.playing{background:var(--green-bg);color:var(--green);border-color:#b8e5cb}
+.tr-status.finished{background:var(--red-bg);color:var(--red);border-color:#f0bcbc}
+.game-top{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.icon-btn{width:44px;height:44px;border-radius:14px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:var(--shadow);flex-shrink:0}
+.icon-btn:active{background:var(--surface2)}
+.gt-wrap{flex:1;min-width:0}
+.gt-title{font-size:15px;font-weight:800;color:var(--text)}
+.gt-sub{font-size:12px;color:var(--muted);font-weight:700;margin-top:2px}
+.gt-sub.countdown{color:var(--red)}
+.gt-sub.playing{color:var(--green)}
+.gt-sub.finished{color:var(--red)}
+.draw{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:14px;min-height:60px;display:flex;flex-wrap:wrap;gap:7px;box-shadow:var(--shadow);max-height:140px;overflow-y:auto}
+.draw-empty{color:var(--muted);font-size:12px;padding:8px 6px;font-weight:600}
+.ball{width:36px;height:36px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--text);flex-shrink:0;transition:all .3s}
+.ball.new{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;border-color:var(--gold3);box-shadow:0 0 16px rgba(212,164,76,.55);animation:pop .45s cubic-bezier(.5,1.8,.5,1)}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+.cards{display:grid;gap:12px;margin-bottom:16px}
+.empty{text-align:center;padding:24px 20px;background:var(--surface);border:2px dashed var(--border2);border-radius:18px;color:var(--muted);font-size:13px;font-weight:600;line-height:1.6}
+.empty img{max-width:130px;opacity:.55;margin:0 auto 12px;display:block}
+.lcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.lcard.won{border-color:var(--green);box-shadow:0 0 0 2px var(--green-bg),var(--shadow)}
+.lc-head{display:flex;justify-content:space-between;align-items:center;padding:0 2px 8px 2px;font-size:10px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:1px}
+.won-tag{background:linear-gradient(135deg,var(--green),#1a7a42);color:#fff;padding:3px 8px;border-radius:6px;font-size:9px;font-weight:900;letter-spacing:.5px}
+.grid{display:grid;grid-template-columns:repeat(9,1fr);gap:2.5px;background:var(--bg2);padding:4px;border-radius:10px}
+.cell{aspect-ratio:1;background:var(--surface);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--text);position:relative;transition:all .2s}
+.cell.empty{background:var(--bg2);border:none}
+.cell.marked{background:linear-gradient(135deg,#ffe066,#ffc93c);color:#3d2a00;box-shadow:0 0 10px rgba(255,193,60,.75),inset 0 0 4px rgba(255,255,255,.4);transform:scale(1.04);text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.cell.marked::after{content:"";position:absolute;top:2px;right:2px;width:4px;height:4px;border-radius:50%;background:#b87c00}
+.cell.edit{outline:2px dashed var(--gold);outline-offset:-1px;cursor:pointer}
+.lc-actions{display:flex;gap:6px;margin-top:10px}
+.lc-actions button{flex:1;padding:9px 4px;border-radius:9px;background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px}
+.lc-actions button:active{background:var(--gold);color:#fff;border-color:var(--gold3)}
+.bottom{padding-top:6px}
+.pot-line{text-align:center;font-size:12px;color:var(--muted);padding:10px;background:var(--surface);border-radius:11px;border:1px solid var(--border);margin-bottom:10px;font-weight:700}
+.pot-line b{color:var(--text);font-weight:900}
+.btn{width:100%;padding:16px;border-radius:14px;font-size:15px;font-weight:900;letter-spacing:.3px;transition:all .15s;box-shadow:var(--shadow)}
+.btn:active{transform:scale(.97)}
+.btn-main{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#fff;box-shadow:0 6px 20px rgba(212,164,76,.4)}
+.btn-main:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-sec{background:var(--surface);color:var(--text);border:1px solid var(--border);margin-top:8px}
+.btn-row{display:flex;gap:8px}
+.btn-row .btn{flex:1;margin-top:0}
+.hint{text-align:center;font-size:12px;color:var(--muted);font-weight:600;padding:10px 0}
+.modal{position:fixed;inset:0;background:rgba(31,26,18,.55);backdrop-filter:blur(4px);z-index:100;display:none;align-items:flex-end;justify-content:center}
+.modal.on{display:flex}
+.modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:24px 20px 28px;max-width:540px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(31,26,18,.3)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.modal-title{font-size:18px;font-weight:900;color:var(--text)}
+.modal-x{width:32px;height:32px;border-radius:50%;background:var(--surface2);font-size:16px;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:700}
+.win-total{text-align:center;padding:14px;background:var(--surface2);border-radius:12px;margin-bottom:14px;border:1px solid var(--border)}
+.win-total-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-weight:800;margin-bottom:4px}
+.win-total-amt{font-size:22px;font-weight:900;color:var(--green)}
+.winner{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.winner.mine{border-color:var(--green);background:var(--green-bg)}
+.w-name{font-size:14px;font-weight:800;color:var(--text)}
+.w-name small{font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.7px;margin-left:6px;font-weight:900}
+.w-amt{font-size:15px;font-weight:900;color:var(--green)}
+.w-amt.bot{color:var(--muted);font-size:13px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--text);color:#fff;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:700;z-index:200;opacity:0;pointer-events:none;transition:all .3s;max-width:88%;box-shadow:var(--shadow2)}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.np-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.np-btn{aspect-ratio:1;border-radius:10px;background:var(--surface2);border:1px solid var(--border);font-size:14px;font-weight:800;color:var(--text)}
+.np-btn:active{background:var(--gold);color:#fff;border-color:var(--gold3)}
+.np-btn:disabled{opacity:.25;cursor:not-allowed}
+.timer-inline{display:inline-block;padding:2px 8px;border-radius:6px;font-variant-numeric:tabular-nums;font-weight:900}
+.timer-inline.gray{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.timer-inline.red{background:var(--red-bg);color:var(--red);border:1px solid #f0bcbc;animation:blink 1.2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="brand">AZELOTO</div>
+    <div class="bal" id="bal">0.00 ₼</div>
+  </header>
+
+  <main id="scr-lobby" class="screen on">
+    <div class="sec-title">Masalar</div>
+    <div class="tables" id="tables"></div>
+  </main>
+
+  <main id="scr-game" class="screen">
+    <div class="game-top">
+      <button class="icon-btn" id="btnBack">←</button>
+      <div class="gt-wrap">
+        <div class="gt-title" id="gtTitle">Masa</div>
+        <div class="gt-sub" id="gtSub">Gözlənir</div>
+      </div>
+      <button class="icon-btn" id="btnSound">🔊</button>
+    </div>
+    <div class="draw" id="draw"><div class="draw-empty">Hələ daş çıxmayıb...</div></div>
+    <div class="cards" id="cards"></div>
+    <div class="bottom" id="bottom"></div>
+  </main>
+
+  <div class="modal" id="modal"><div class="modal-box" id="modalBox"></div></div>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyA2YZvW63iVT-YlmM28OQB8TDtKhsGg75Y",
+  authDomain: "lotoaze-cd37c.firebaseapp.com",
+  projectId: "lotoaze-cd37c",
+  storageBucket: "lotoaze-cd37c.firebasestorage.app",
+  messagingSenderId: "389783169040",
+  appId: "1:389783169040:web:dd9c291e64bd355afb0295",
+  databaseURL: "https://lotoaze-cd37c-default-rtdb.firebaseio.com"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+
+const TABLES = [
+  { id:"t020", price:0.20, label:"0.20 ₼" },
+  { id:"t050", price:0.50, label:"0.50 ₼" },
+  { id:"t1",   price:1.00, label:"1.00 ₼" },
+  { id:"t3",   price:3.00, label:"3.00 ₼" },
+  { id:"t5",   price:5.00, label:"5.00 ₼" },
+  { id:"t20",  price:20.00, label:"20.00 ₼" }
+];
+
+// Düzgün birbaşa şəkil URL-i (imgbb)
+const DEFAULT_CARD_IMG = "https://i.ibb.co/B54WRRNR/file-00000000496c8243abe8ab1284efceb6.png";
+
+const $ = (id) => document.getElementById(id);
+const fmt = (n) => Number(n || 0).toFixed(2) + " ₼";
+
+let me = null;
+let currentTable = null;
+let tableData = null;
+let unsubTable = null;
+let tickTimer = null;
+let soundOn = true;
+let lastNum = null;
+let lastWinKey = null;
+let audioCtx = null;
+
+function toast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.classList.remove("on"), 2200);
+}
+
+function ensureAudio() {
+  if (!audioCtx) {
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) {
+        audioCtx = new AC();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+      }
+    } catch (e) {}
+  }
+  if (window.speechSynthesis) {
+    try { speechSynthesis.getVoices(); speechSynthesis.cancel(); } catch (e) {}
+  }
+}
+
+function pencilSound() {
+  if (!soundOn || !audioCtx) return;
+  try {
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    o.type = "square";
+    o.frequency.value = 1200 + Math.random() * 500;
+    g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0005, audioCtx.currentTime + 0.05);
+    o.start(); o.stop(audioCtx.currentTime + 0.06);
+  } catch (e) {}
+}
+
+function sayNumber(n) {
+  if (!soundOn || !window.speechSynthesis) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(String(n));
+    const voices = speechSynthesis.getVoices();
+    const az = voices.find(v => v.lang === "az-AZ" || v.lang === "az");
+    const tr = voices.find(v => v.lang === "tr-TR" || v.lang === "tr");
+    if (az) u.voice = az;
+    else if (tr) u.voice = tr;
+    u.lang = az ? "az-AZ" : (tr ? "tr-TR" : "en-US");
+    u.rate = 0.85;
+    u.pitch = 1;
+    u.volume = 0.95;
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+async function api(path, body) {
+  const u = auth.currentUser;
+  if (!u) throw new Error("no_user");
+  const token = await u.getIdToken();
+  const r = await fetch("/api" + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify(body || {})
+  });
+  return r.json();
+}
+
+function renderLobby() {
+  $("tables").innerHTML = TABLES.map(t => `
+    <div class="table-row" data-tid="${t.id}">
+      <div>
+        <div class="tr-price">${t.label}</div>
+        <div class="tr-players"><span class="tr-dot"></span><span data-cnt="${t.id}">0</span> oyunçu</div>
+      </div>
+      <div class="tr-status" data-st="${t.id}">Gözlənir</div>
+    </div>
+  `).join("");
+
+  document.querySelectorAll(".table-row").forEach(el => {
+    el.addEventListener("click", () => openTable(el.dataset.tid));
+  });
+
+  TABLES.forEach(t => {
+    onValue(ref(db, "tables/" + t.id), (snap) => {
+      const d = snap.val();
+      const cnt = document.querySelector(`[data-cnt="${t.id}"]`);
+      const st = document.querySelector(`[data-st="${t.id}"]`);
+      if (!cnt || !st) return;
+      let players = 0;
+      if (d) players = Object.keys(d.players || {}).length + Object.keys(d.bots || {}).length;
+      cnt.textContent = players;
+      const s = d?.status || "waiting";
+      if (s === "playing") { st.textContent = "Oyunda"; st.className = "tr-status playing"; }
+      else if (s === "countdown") { st.textContent = "Başlayır"; st.className = "tr-status playing"; }
+      else if (s === "finished") { st.textContent = "Bitdi"; st.className = "tr-status finished"; }
+      else { st.textContent = "Gözlənir"; st.className = "tr-status"; }
+    });
+  });
+}
+
+async function openTable(tid) {
+  ensureAudio();
+  const t = TABLES.find(x => x.id === tid);
+  if (!t) return;
+  currentTable = t;
+  lastNum = null;
+  lastWinKey = null;
+  $("scr-lobby").classList.remove("on");
+  $("scr-game").classList.add("on");
+  $("gtTitle").textContent = t.label + " Masası";
+  $("draw").innerHTML = '<div class="draw-empty">Hələ daş çıxmayıb...</div>';
+  $("cards").innerHTML = "";
+  $("bottom").innerHTML = "";
+
+  try {
+    const res = await api("/join", { tableId: tid });
+    if (res.error && res.error !== "not_waiting") toast("Qoşulma alınmadı");
+  } catch (e) { toast("Şəbəkə xətası"); }
+
+  if (unsubTable) unsubTable();
+  unsubTable = onValue(ref(db, "tables/" + tid), (snap) => {
+    tableData = snap.val();
+    if (tableData) renderGame();
+  });
+
+  if (tickTimer) clearInterval(tickTimer);
+  tickTimer = setInterval(updateStatusLine, 500);
+}
+
+function backToLobby() {
+  if (unsubTable) { unsubTable(); unsubTable = null; }
+  if (tickTimer) { clearInterval(tickTimer); tickTimer = null; }
+  closeModal();
+  $("scr-game").classList.remove("on");
+  $("scr-lobby").classList.add("on");
+  currentTable = null;
+  tableData = null;
+}
+
+function updateStatusLine() {
+  if (!tableData) return;
+  const s = tableData.status;
+  const el = $("gtSub");
+  if (s === "waiting") {
+    const total = countCards(tableData);
+    const min = Math.ceil(40 / tableData.price);
+    el.textContent = `Gözlənir · ${total}/${min} kart`;
+    el.className = "gt-sub";
+  } else if (s === "countdown") {
+    const rem = Math.max(0, 120000 - (Date.now() - tableData.countdownStart));
+    el.innerHTML = `Başlayır · <span class="timer-inline red">${fmtTime(rem)}</span>`;
+    el.className = "gt-sub countdown";
+  } else if (s === "playing") {
+    const el2 = Math.max(0, Date.now() - tableData.playStart);
+    el.innerHTML = `Oyunda · <span class="timer-inline gray">${fmtTime(el2)}</span>`;
+    el.className = "gt-sub playing";
+  } else if (s === "finished") {
+    const rem = Math.max(0, 120000 - (Date.now() - tableData.finishedAt));
+    el.innerHTML = `Növbəti oyun · <span class="timer-inline red">${fmtTime(rem)}</span>`;
+    el.className = "gt-sub finished";
+  }
+}
+
+function fmtTime(ms) {
+  const total = Math.floor(ms / 1000);
+  return Math.floor(total / 60) + ":" + String(total % 60).padStart(2, "0");
+}
+
+function countCards(d) {
+  let t = 0;
+  if (d.cards) for (const u in d.cards) t += Object.keys(d.cards[u] || {}).length;
+  if (d.bots) for (const b in d.bots) t += Object.keys(d.bots[b].cards || {}).length;
+  return t;
+}
+
+function renderGame() {
+  if (!tableData || !currentTable || !me) return;
+  const d = tableData;
+  updateStatusLine();
+
+  const drawnArr = d.drawnNumbers ? Object.values(d.drawnNumbers) : [];
+  const latest = drawnArr.length ? drawnArr[drawnArr.length - 1] : null;
+
+  if (drawnArr.length === 0) {
+    $("draw").innerHTML = '<div class="draw-empty">Hələ daş çıxmayıb...</div>';
+  } else {
+    $("draw").innerHTML = drawnArr.map((n, i) =>
+      `<div class="ball${i === drawnArr.length - 1 ? " new" : ""}">${n}</div>`
+    ).join("");
+  }
+
+  if (latest !== null && latest !== lastNum) {
+    lastNum = latest;
+    sayNumber(latest);
+    pencilSound();
+  }
+
+  const myCards = (d.cards && d.cards[me.uid])
+    ? Object.entries(d.cards[me.uid]).filter(([, c]) => c && c.grid)
+    : [];
+  const drawnSet = new Set(drawnArr);
+
+  if (myCards.length === 0) {
+    $("cards").innerHTML = (d.status === "playing" || d.status === "finished")
+      ? '<div class="empty">Bu raundda kartınız yoxdur.<br>Növbəti oyunda iştirak edin.</div>'
+      : `<div class="empty">
+          <img src="${DEFAULT_CARD_IMG}" alt="" onerror="this.style.display='none'">
+          Hələ kart almamısınız.<br>Aşağıdan kart əlavə edin.
+        </div>`;
+  } else {
+    $("cards").innerHTML = myCards.map(([cId, card]) =>
+      renderCard(cId, card, drawnSet, d)
+    ).join("");
+    $("cards").querySelectorAll("button[data-act]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const cId = btn.dataset.cid;
+        if (btn.dataset.act === "change") changeCard(cId);
+        else if (btn.dataset.act === "edit") openEditCard(cId);
+      });
+    });
+  }
+
+  renderBottom(d, myCards);
+  checkWinnersPopup(d);
+}
+
+function renderCard(cId, card, drawnSet, d) {
+  let head = `<div class="lc-head"><span>Kart · ${cId.slice(-4)}</span>`;
+  if (card.won) head += '<span class="won-tag">Qalib</span>';
+  head += "</div>";
+
+  let grid = '<div class="grid">';
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 9; c++) {
+      const n = card.grid[r][c];
+      if (n === null) grid += '<div class="cell empty"></div>';
+      else {
+        const marked = drawnSet.has(n);
+        grid += `<div class="cell${marked ? " marked" : ""}">${n}</div>`;
+      }
+    }
+  }
+  grid += "</div>";
+
+  let actions = "";
+  if (d.status === "waiting") {
+    actions = `<div class="lc-actions">
+      <button data-act="change" data-cid="${cId}">Dəyiş</button>
+      <button data-act="edit" data-cid="${cId}">Düzənlə</button>
+    </div>`;
+  }
+  return `<div class="lcard${card.won ? " won" : ""}">${head}${grid}${actions}</div>`;
+}
+
+function renderBottom(d, myCards) {
+  const bottom = $("bottom");
+  const total = countCards(d);
+  const min = Math.ceil(40 / d.price);
+
+  if (d.status === "waiting") {
+    const canBuy = myCards.length < 6;
+    bottom.innerHTML = `
+      <div class="pot-line">Kassa: <b>${fmt(total * d.price)}</b> / ${fmt(min * d.price)}</div>
+      <button class="btn btn-main" id="btnBuy" ${!canBuy ? "disabled" : ""}>
+        Kart al · ${fmt(d.price)}
+      </button>
+      <div class="hint">Kartlarınız: ${myCards.length} / 6</div>
+    `;
+    const b = $("btnBuy");
+    if (b) b.addEventListener("click", () => { ensureAudio(); buyCard(); });
+  } else if (d.status === "countdown") {
+    bottom.innerHTML = '<div class="hint">Oyun başlayır, gözləyin...</div>';
+  } else if (d.status === "playing") {
+    bottom.innerHTML = '<div class="hint">Oyun davam edir...</div>';
+  } else if (d.status === "finished") {
+    bottom.innerHTML = `
+      <div class="btn-row">
+        <button class="btn btn-main" id="btnAgain">Təkrar qoşul</button>
+        <button class="btn btn-sec" id="btnLobby">Lobiyə qayıt</button>
+      </div>
+    `;
+    $("btnAgain").addEventListener("click", () => {
+      if (tableData && tableData.status === "waiting") buyCard();
+      else toast("Növbəti oyun tezliklə başlayır");
+    });
+    $("btnLobby").addEventListener("click", backToLobby);
+  }
+}
+
+async function buyCard() {
+  if (!currentTable) return;
+  try {
+    const r = await api("/buy-card", { tableId: currentTable.id });
+    if (r.error === "no_balance") toast("Balans kifayət deyil");
+    else if (r.error === "max_cards") toast("Maksimum 6 kart");
+    else if (r.error === "not_waiting") toast("Oyun artıq başlayıb");
+    else if (r.error === "too_fast") toast("Bir az gözləyin");
+    else if (r.error) toast("Xəta baş verdi");
+    else toast("Kart əlavə edildi");
+  } catch (e) { toast("Şəbəkə xətası"); }
+}
+
+async function changeCard(cId) {
+  if (!currentTable) return;
+  try {
+    const r = await api("/change-card", { tableId: currentTable.id, cardId: cId });
+    if (r.ok) toast("Kart dəyişdirildi");
+    else toast(r.error === "not_waiting" ? "Oyun başlayıb" : "Alınmadı");
+  } catch (e) { toast("Şəbəkə xətası"); }
+}
+
+function colRange(c) {
+  const ranges = [[1,9],[10,19],[20,29],[30,39],[40,49],[50,59],[60,69],[70,79],[80,90]];
+  return ranges[c];
+}
+
+function openEditCard(cId) {
+  if (!tableData || tableData.status !== "waiting") return;
+  const card = tableData.cards?.[me.uid]?.[cId];
+  if (!card) return;
+
+  let currentGrid = JSON.parse(JSON.stringify(card.grid));
+  let editing = null;
+
+  function render() {
+    let gridHtml = '<div class="grid" style="gap:3px">';
+    for (let r = 0; r < 3; r++) {
+      for (let c = 0; c < 9; c++) {
+        const n = currentGrid[r][c];
+        if (n === null) gridHtml += '<div class="cell empty"></div>';
+        else {
+          const sel = editing && editing.r === r && editing.c === c;
+          gridHtml += `<div class="cell edit${sel ? " marked" : ""}" data-r="${r}" data-c="${c}">${n}</div>`;
+        }
+      }
+    }
+    gridHtml += "</div>";
+
+    let pickerHtml = "";
+    if (editing) {
+      const [mn, mx] = colRange(editing.c);
+      const used = new Set();
+      for (let r = 0; r < 3; r++) {
+        if (r !== editing.r && currentGrid[r][editing.c] !== null) used.add(currentGrid[r][editing.c]);
+      }
+      const nums = [];
+      for (let i = mn; i <= mx; i++) nums.push(i);
+      pickerHtml = `<div style="margin-top:14px">
+        <div class="hint" style="padding:6px 0">Sütun ${editing.c + 1} · ${mn}–${mx}</div>
+        <div class="np-grid">${nums.map(n =>
+          `<button class="np-btn" data-num="${n}" ${used.has(n) ? "disabled" : ""}>${n}</button>`
+        ).join("")}</div>
+      </div>`;
+    }
+
+    $("modalBox").innerHTML = `
+      <div class="modal-head">
+        <div class="modal-title">Kartı düzənlə</div>
+        <button class="modal-x" id="mx">×</button>
+      </div>
+      ${gridHtml}
+      ${pickerHtml}
+      <div style="margin-top:16px">
+        <button class="btn btn-main" id="saveEdit">Yadda saxla</button>
+        <button class="btn btn-sec" id="cancelEdit">Ləğv et</button>
+      </div>
+    `;
+
+    $("mx").addEventListener("click", closeModal);
+    $("cancelEdit").addEventListener("click", closeModal);
+
+    $("modalBox").querySelectorAll(".cell.edit").forEach(cell => {
+      cell.addEventListener("click", () => {
+        editing = { r: Number(cell.dataset.r), c: Number(cell.dataset.c) };
+        render();
+      });
+    });
+
+    if (editing) {
+      $("modalBox").querySelectorAll(".np-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          currentGrid[editing.r][editing.c] = Number(btn.dataset.num);
+          editing = null;
+          render();
+        });
+      });
+    }
+
+    $("saveEdit").addEventListener("click", async () => {
+      try {
+        const r = await api("/edit-card", { tableId: currentTable.id, cardId: cId, grid: currentGrid });
+        if (r.ok) { toast("Kart yeniləndi"); closeModal(); }
+        else toast(r.error === "not_waiting" ? "Oyun başlayıb" : "Alınmadı");
+      } catch (e) { toast("Şəbəkə xətası"); }
+    });
+  }
+
+  render();
+  $("modal").classList.add("on");
+}
+
+function closeModal() {
+  $("modal").classList.remove("on");
+  $("modalBox").innerHTML = "";
+}
+
+function checkWinnersPopup(d) {
+  if (d.status !== "finished" || !d.winners) return;
+  if (lastWinKey === d.finishedAt) return;
+  lastWinKey = d.finishedAt;
+  showWinners(d);
+}
+
+function showWinners(d) {
+  const winners = Object.values(d.winners || {}).sort((a, b) => (b.amount || 0) - (a.amount || 0));
+  const iWon = winners.some(w => w.uid === me.uid);
+
+  let html = `
+    <div class="modal-head">
+      <div class="modal-title">${iWon ? "Təbriklər!" : "Oyun bitdi"}</div>
+      <button class="modal-x" id="wx">×</button>
+    </div>
+    <div class="win-total">
+      <div class="win-total-label">Ümumi kassa</div>
+      <div class="win-total-amt">${fmt(d.pot || 0)}</div>
+    </div>
+  `;
+
+  for (const w of winners) {
+    const mine = w.uid === me.uid;
+    html += `<div class="winner${mine ? " mine" : ""}">
+      <div class="w-name">${escapeHtml(w.name)}${mine ? "<small>Siz</small>" : ""}</div>
+      <div class="w-amt${w.isBot ? " bot" : ""}">${w.isBot ? "—" : fmt(w.amount)}</div>
+    </div>`;
+  }
+
+  html += `<div style="margin-top:16px">
+    <button class="btn btn-main" id="winOk">Bağla</button>
+  </div>`;
+
+  $("modalBox").innerHTML = html;
+  $("modal").classList.add("on");
+  $("wx").addEventListener("click", closeModal);
+  $("winOk").addEventListener("click", closeModal);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, ch => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[ch]));
+}
+
+$("btnBack").addEventListener("click", backToLobby);
+$("btnSound").addEventListener("click", () => {
+  ensureAudio();
+  soundOn = !soundOn;
+  $("btnSound").textContent = soundOn ? "🔊" : "🔇";
+  if (!soundOn && window.speechSynthesis) speechSynthesis.cancel();
+});
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    try { await signInAnonymously(auth); }
+    catch (e) { toast("Giriş alınmadı"); }
+    return;
+  }
+  try {
+    const res = await api("/init");
+    if (res.error) { toast("Başlatma xətası"); return; }
+    onValue(ref(db, "users/" + user.uid), (snap) => {
+      const u = snap.val();
+      if (u) {
+        me = { uid: user.uid, name: u.name, balance: u.balance || 0 };
+        $("bal").textContent = fmt(u.balance);
+      }
+    });
+    renderLobby();
+  } catch (e) { toast("Server xətası"); }
+});
+</script>
+</body>
+</html>
